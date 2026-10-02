@@ -1,56 +1,49 @@
-# Welcome to your Expo app 👋
+# Offline Breadcrumb GPS Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+แอปพลิเคชันมือถือสำหรับนำทางและระบุพิกัดสัมพัทธ์แบบออฟไลน์ (Offline Local Coordinate Tracker) พัฒนาด้วย **React Native (Expo)** ออกแบบมาสำหรับการเดินป่าหรือพื้นที่ไร้สัญญาณอินเทอร์เน็ต โดยอาศัยชิปฮาร์ดแวร์ GPS โดยตรงเพื่อแปลงพิกัดภูมิศาสตร์เป็นพิกัดคาร์ทีเซียน $(x, y)$ เทียบกับจุดเริ่มต้นที่มาร์กไว้
 
-## Get started
+---
 
-1. Install dependencies
+## ฟังก์ชันการทำงานหลัก
 
-   ```bash
-   npm install
-   ```
+- **Offline 100%:** ไม่จำเป็นต้องต่ออินเทอร์เน็ตหรือโหลดแผนที่ภาพ ใช้เพียงสัญญาณจากชิปดาวเทียม GPS
+- **Mark Origin $(0, 0)$:** กำหนดจุดอ้างอิงเริ่มต้นได้ด้วยการแตะเพียงครั้งเดียว
+- **Relative Coordinates $(x, y)$:** คำนวณระยะขจัดในแนวแกนราบ (หน่วยเมตร):
+  - $X$: ระยะทางแนวแกน ตะวันออก (+) / ตะวันตก (-)
+  - $Y$: ระยะทางแนวแกน เหนือ (+) / ใต้ (-)
+- **Distance to Origin:** คำนวณระยะห่างทางตรงจากตำแหน่งปัจจุบันกลับไปยังจุด Origin
+- **Velocity Tracking $(v_x, v_y)$:** คำนวณเวกเตอร์ความเร็วตามแนวแกนจากอัตราการเปลี่ยนแปลงตำแหน่งจริง ($\Delta x / \Delta t$) พร้อมระบบตัดสัญญาณรบกวน (Noise Filter)
+- **Signal Quality Indicator:** แสดงค่า GPS Accuracy เพื่อบอกระดับความคลาดเคลื่อนของสัญญาณดาวเทียมแบบเรียลไทม์
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## หลักการคำนวณทางคณิตศาสตร์
 
-In the output, you'll find options to open the app in a
+ระบบแปลงพิกัดละติจูดและลองจิจูด $(\text{lat}, \text{lon})$ เป็นพิกัดระนาบแบน $(x, y)$ โดยใช้โมเดลทรงกลมของโลก (รัศมีเฉลี่ย $R = 6,371,000\text{ m}$):
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+$$\Delta \text{lat} = (\text{lat} - \text{lat}_0) \times \frac{\pi}{180}, \quad \Delta \text{lon} = (\text{lon} - \text{lon}_0) \times \frac{\pi}{180}$$
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+$$x = \Delta \text{lon} \times \cos\left(\frac{\text{lat}_0 + \text{lat}}{2} \times \frac{\pi}{180}\right) \times R$$
 
-## Get a fresh project
+$$y = \Delta \text{lat} \times R$$
 
-When you're ready, run:
+$$d = \sqrt{x^2 + y^2}$$
+
+---
+
+## เทคโนโลยีที่ใช้
+
+- **Framework:** React Native / Expo (Expo Router)
+- **Language:** TypeScript
+- **Sensors API:** `expo-location`
+
+---
+
+## ขั้นตอนการติดตั้งและรันเพื่อทดสอบ
+
+### 1. ติดตั้ง Dependencies
 
 ```bash
-npm run reset-project
+npm install
+npx expo install expo-location
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
